@@ -1,0 +1,16 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: portfolio-return-service
+  datasource:
+    url: jdbc:h2:mem:portfolio;DB_CLOSE_DELAY=-1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+# 가상 시세 서버 주소. 환경변수 PRICE_BASE_URL로 바꿀 수 있어야 합니다.
+price:
+  base-url: http://localhost:9091

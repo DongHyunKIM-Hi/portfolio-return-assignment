@@ -1,0 +1,81 @@
+### 과제 3. 요청 예시 (IntelliJ HTTP Client)
+### 사용법: 각 ### 블록 왼쪽의 초록색 화살표를 눌러 실행하세요.
+### 먼저 가상 시세 서버를 띄우고(compose.yaml), 여러분의 서버를 8080 포트로 실행한 뒤 시도하세요.
+
+@host = http://localhost:8080
+
+### S1. 상품 검색 (부분 일치)
+GET {{host}}/api/v1/products?query=성장&size=5
+
+### S2. 상품 정렬 (상장일 오름차순)
+GET {{host}}/api/v1/products?sort=listedDate,asc&size=5
+
+### S3. 상품 필터 (유형 + 통화, AND로 결합)
+GET {{host}}/api/v1/products?type=ETF&currency=KRW&size=5
+
+### S4. 데이터 정리 확인: 전체 상품 수가 120개(중복 제거 후)여야 함
+GET {{host}}/api/v1/products?size=1
+
+### S5. 포트폴리오 생성 → 201 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{
+  "name": "내 포트폴리오",
+  "holdings": [
+    { "code": "A001", "quantity": 10 },
+    { "code": "A002", "quantity": 5 }
+  ]
+}
+
+### S5. 없는 상품 코드로 생성 → 400 UNKNOWN_PRODUCT 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{ "name": "오류 테스트", "holdings": [ { "code": "NO-SUCH", "quantity": 1 } ] }
+
+### 위에서 만든 포트폴리오 조회 (id는 응답의 id 값으로 바꾸세요)
+GET {{host}}/api/v1/portfolios/1
+
+### S6. 포트폴리오 목록 (이름 검색 + 정렬)
+GET {{host}}/api/v1/portfolios?sort=returnRate,desc
+
+### S7. 구성 변경 (매입가·수익률이 가정한 대로 바뀌는지 확인)
+PUT {{host}}/api/v1/portfolios/1
+Content-Type: application/json
+
+{
+  "name": "내 포트폴리오",
+  "holdings": [
+    { "code": "A001", "quantity": 20 },
+    { "code": "A003", "quantity": 3 }
+  ]
+}
+
+### 삭제
+DELETE {{host}}/api/v1/portfolios/1
+
+### 없는 포트폴리오 조회 → 404 기대
+GET {{host}}/api/v1/portfolios/999999
+
+
+### ------------------------------------------------------------------
+### 아래는 가상 시세 서버(9091)를 직접 확인해 보고 싶을 때 씁니다. 필수는 아닙니다.
+
+@price = http://localhost:9091
+
+### 시세 서버 API 문서(Swagger) 열어보기: 브라우저에서 http://localhost:9091/swagger-ui.html
+
+### 토큰 발급
+POST {{price}}/auth/token
+Content-Type: application/json
+
+{ "clientId": "student", "clientSecret": "student-secret" }
+
+### 시세 조회 (위에서 받은 토큰을 넣으세요)
+GET {{price}}/v1/prices
+Authorization: Bearer 여기에_토큰_붙여넣기
+
+### 환율 조회
+GET {{price}}/v1/fx?pair=USD-KRW
+Authorization: Bearer 여기에_토큰_붙여넣기
