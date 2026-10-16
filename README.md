@@ -80,36 +80,7 @@
 - 기술 스택은 Java 17, Spring Boot 4.1.1, Gradle, JPA, H2입니다.
 - 제한 시간은 없습니다.
 
-```mermaid
-flowchart LR
-    A["요청을 보내는 쪽<br/>(Swagger / curl)"]
-    CSV[("data/products.csv<br/>(수정 금지)")]
-
-    subgraph SERVER["구현할 서버 (:8080)"]
-        B["상품 조회 API"]
-        C["포트폴리오 API"]
-        D[("DB (H2)")]
-        E["시세 갱신 스케줄러<br/>(30초마다)"]
-    end
-
-    subgraph PRICE["제공되는 가상 시세 서버 (:9091)"]
-        F["POST /auth/token"]
-        G["GET /v1/prices, /v1/fx"]
-    end
-
-    A --> B --> D
-    A --> C --> D
-    CSV -->|"서버 시작 시 적재"| D
-    E -->|"평가금액에 반영"| D
-    E -->|"토큰 발급"| F
-    E -->|"시세, 환율 조회"| G
-
-    style B fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
-    style C fill:#dbeafe,stroke:#3b82f6,stroke-width:2px
-    style E fill:#ffedd5,stroke:#f97316,stroke-width:2px
-    style D fill:#e2e8f0,stroke:#64748b
-    style CSV fill:#e2e8f0,stroke:#64748b
-```
+![포트폴리오 서버 구조: 상품 조회 API와 포트폴리오 API는 바로 응답하고, 시세 갱신 워커가 30초마다 가상 시세 서버와 통신합니다](docs/images/portfolio-architecture.svg)
 
 ## 3. 시작하기
 
