@@ -1,6 +1,6 @@
 ### 과제 3. 요청 예시 (IntelliJ HTTP Client)
 ### 사용법: 각 ### 블록 왼쪽의 초록색 화살표를 눌러 실행하세요.
-### 먼저 가상 시세 서버를 띄우고(compose.yaml), 여러분의 서버를 8080 포트로 실행한 뒤 시도하세요.
+### 먼저 가상 시세 서버를 띄우고(compose.yaml), 구현한 서버를 8080 포트로 실행한 뒤 시도하세요.
 
 @host = http://localhost:8080
 
@@ -16,7 +16,7 @@ GET {{host}}/api/v1/products?type=ETF&currency=KRW&size=5
 ### S4. 데이터 정리 확인: 전체 상품 수가 120개(중복 제거 후)여야 함
 GET {{host}}/api/v1/products?size=1
 
-### S5. 포트폴리오 생성 → 201 기대
+### S5. 포트폴리오 생성: 201 기대
 POST {{host}}/api/v1/portfolios
 Content-Type: application/json
 
@@ -28,7 +28,7 @@ Content-Type: application/json
   ]
 }
 
-### S5. 없는 상품 코드로 생성 → 400 UNKNOWN_PRODUCT 기대
+### S5. 없는 상품 코드로 생성: 400 UNKNOWN_PRODUCT 기대
 POST {{host}}/api/v1/portfolios
 Content-Type: application/json
 
@@ -38,9 +38,9 @@ Content-Type: application/json
 GET {{host}}/api/v1/portfolios/1
 
 ### S6. 포트폴리오 목록 (이름 검색 + 정렬)
-GET {{host}}/api/v1/portfolios?sort=returnRate,desc
+GET {{host}}/api/v1/portfolios?query=포트폴리오&sort=returnRate,desc
 
-### S7. 구성 변경 (매입가·수익률이 가정한 대로 바뀌는지 확인)
+### 구성 변경: 매입가와 수익률이 가정 문서에 정한 대로 바뀌는지 확인
 PUT {{host}}/api/v1/portfolios/1
 Content-Type: application/json
 
@@ -55,7 +55,7 @@ Content-Type: application/json
 ### 삭제
 DELETE {{host}}/api/v1/portfolios/1
 
-### 없는 포트폴리오 조회 → 404 기대
+### 없는 포트폴리오 조회: 404 기대
 GET {{host}}/api/v1/portfolios/999999
 
 
