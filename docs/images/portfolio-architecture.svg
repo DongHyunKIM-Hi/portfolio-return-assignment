@@ -1,6 +1,6 @@
 <svg viewBox="20 20 1010 560" width="1010" height="560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="포트폴리오 서비스 구조: 구현할 서버가 상품 조회와 포트폴리오 API를 제공하고, 30초마다 워커가 가상 시세 서버에서 시세를 받아온다">
 <title>과제 3 서버 구조</title>
-<desc>요청을 보내는 쪽 → 구현할 서버(상품 조회 API, 포트폴리오 API, DB, 시세 갱신 워커) → 가상 시세 서버. data/products.csv는 강사가 제공하는 수정 금지 파일이다.</desc>
+<desc>요청을 보내는 쪽 → 구현할 서버(상품 조회 API, 포트폴리오 API, DB, 시세 갱신 워커) → 가상 시세 서버. data/products.csv는 제공되는 수정 금지 파일이다.</desc>
 <rect width="1050" height="600" fill="#ffffff"/>
 
 <defs>
@@ -50,7 +50,7 @@
 <rect x="30" y="440" width="180" height="70" rx="10" fill="#f1f5f9" stroke="#64748b" stroke-width="1.5"/>
 <text text-anchor="middle" font-family="sans-serif" fill="#334155">
   <tspan x="120" y="465" font-size="13" font-weight="700">data/products.csv</tspan>
-  <tspan x="120" y="483" font-size="11">(강사 제공, 수정 금지)</tspan>
+  <tspan x="120" y="483" font-size="11">(제공 파일, 수정 금지)</tspan>
   <tspan x="120" y="499" font-size="10.5" fill="#b45309">결함 4종 포함</tspan>
 </text>
 
@@ -96,5 +96,5 @@
 <rect x="30" y="555" width="14" height="14" fill="#ffedd5" stroke="#f97316"/>
 <text x="50" y="566" font-size="12" fill="#334155" font-family="sans-serif">워커 경로: 주기적으로 외부 서버와 통신</text>
 <rect x="330" y="530" width="14" height="14" fill="#f1f5f9" stroke="#64748b"/>
-<text x="350" y="541" font-size="12" fill="#334155" font-family="sans-serif">강사가 제공하는 부분 (파일, 외부 서버)</text>
+<text x="350" y="541" font-size="12" fill="#334155" font-family="sans-serif">제공되는 부분 (파일, 외부 서버)</text>
 </svg>

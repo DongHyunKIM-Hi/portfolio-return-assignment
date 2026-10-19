@@ -70,7 +70,7 @@ GET {{host}}/api/v1/portfolios/999999
 POST {{price}}/auth/token
 Content-Type: application/json
 
-{ "clientId": "student", "clientSecret": "student-secret" }
+{ "clientId": "client", "clientSecret": "client-secret" }
 
 ### 시세 조회 (위에서 받은 토큰을 넣으세요)
 GET {{price}}/v1/prices

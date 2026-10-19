@@ -1,6 +1,6 @@
 # 가상 포트폴리오 수익률 서비스
 
-> 백엔드 실습 과제 (문서 버전 v1.3, 2026-10-16)
+> 백엔드 사전 과제 (문서 버전 v1.3, 2026-10-16)
 
 > [!IMPORTANT]
 > **과제 시작 전 확인 사항**
@@ -232,7 +232,7 @@
 `POST /auth/token`
 
 ```json
-{ "clientId": "student", "clientSecret": "student-secret" }
+{ "clientId": "client", "clientSecret": "client-secret" }
 ```
 
 응답 (200)
