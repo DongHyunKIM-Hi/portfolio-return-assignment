@@ -6,7 +6,7 @@ plugins {
 
 group = 'com.practice.portfolio'
 version = '0.0.1-SNAPSHOT'
-description = '과제 3. 가상 포트폴리오 수익률 서비스 - 시작 프로젝트'
+description = '가상 포트폴리오 수익률 서비스 시작 프로젝트'
 
 java {
 	toolchain {

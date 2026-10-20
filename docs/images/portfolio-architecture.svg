@@ -1,5 +1,5 @@
 <svg viewBox="20 20 1010 560" width="1010" height="560" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="포트폴리오 서비스 구조: 구현할 서버가 상품 조회와 포트폴리오 API를 제공하고, 30초마다 워커가 가상 시세 서버에서 시세를 받아온다">
-<title>과제 3 서버 구조</title>
+<title>포트폴리오 서버 구조</title>
 <desc>요청을 보내는 쪽 → 구현할 서버(상품 조회 API, 포트폴리오 API, DB, 시세 갱신 워커) → 가상 시세 서버. data/products.csv는 제공되는 수정 금지 파일이다.</desc>
 <rect width="1050" height="600" fill="#ffffff"/>
 
@@ -23,7 +23,7 @@
 <rect x="30" y="120" width="180" height="130" rx="10" fill="#eef2ff" stroke="#818cf8" stroke-width="1.5"/>
 <text text-anchor="middle" font-family="sans-serif" fill="#312e81">
   <tspan x="120" y="180" font-size="14" font-weight="700">요청을 보내는 쪽</tspan>
-  <tspan x="120" y="202" font-size="12">(Swagger / curl)</tspan>
+  <tspan x="120" y="202" font-size="12">(curl, HTTP Client)</tspan>
 </text>
 
 <!-- 상품 조회 API (파란색) -->
@@ -51,7 +51,7 @@
 <text text-anchor="middle" font-family="sans-serif" fill="#334155">
   <tspan x="120" y="465" font-size="13" font-weight="700">data/products.csv</tspan>
   <tspan x="120" y="483" font-size="11">(제공 파일, 수정 금지)</tspan>
-  <tspan x="120" y="499" font-size="10.5" fill="#b45309">결함 4종 포함</tspan>
+  <tspan x="120" y="499" font-size="10.5" fill="#b45309">중복 코드와 표기가 섞인 데이터</tspan>
 </text>
 
 <!-- 제공되는 가상 시세 서버 (회색) -->
@@ -62,7 +62,7 @@
   <tspan x="885" y="426" font-size="11.5" font-family="ui-monospace, monospace">POST /auth/token</tspan>
   <tspan x="885" y="446" font-size="11.5" font-family="ui-monospace, monospace">GET /v1/prices</tspan>
   <tspan x="885" y="466" font-size="11.5" font-family="ui-monospace, monospace">GET /v1/fx</tspan>
-  <tspan x="885" y="490" font-size="10.5" fill="#b45309">30초마다 변동, 5% 확률로 장애</tspan>
+  <tspan x="885" y="490" font-size="10.5" fill="#b45309">30초마다 변동, 가끔 503 응답</tspan>
   <tspan x="885" y="506" font-size="10.5" fill="#b45309">토큰은 120초 후 만료</tspan>
 </text>
 
@@ -87,7 +87,7 @@
   <tspan x="625" y="430" font-size="12" font-weight="700">토큰 발급, 시세와 환율 조회</tspan>
 </text>
 
-<line x1="510" y1="360" x2="480" y2="450" stroke="#64748b" stroke-width="1.5" marker-end="url(#pf-arrow-gray)"/>
+<line x1="480" y1="450" x2="508" y2="368" stroke="#64748b" stroke-width="1.5" marker-end="url(#pf-arrow-gray)"/>
 <text x="530" y="405" font-size="11" fill="#334155" font-family="sans-serif">최근 시세 저장</text>
 
 <!-- 범례 -->

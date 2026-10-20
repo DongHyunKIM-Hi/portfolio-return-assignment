@@ -1,4 +1,4 @@
-### 과제 3. 요청 예시 (IntelliJ HTTP Client)
+### 가상 포트폴리오 수익률 서비스 요청 예시 (IntelliJ HTTP Client 형식)
 ### 사용법: 각 ### 블록 왼쪽의 초록색 화살표를 눌러 실행하세요.
 ### 먼저 가상 시세 서버를 띄우고(compose.yaml), 구현한 서버를 8080 포트로 실행한 뒤 시도하세요.
 
@@ -13,7 +13,7 @@ GET {{host}}/api/v1/products?sort=listedDate,asc&size=5
 ### S3. 상품 필터 (유형 + 통화, AND로 결합)
 GET {{host}}/api/v1/products?type=ETF&currency=KRW&size=5
 
-### S4. 데이터 정리 확인: 전체 상품 수가 120개(중복 제거 후)여야 함
+### S4. 데이터 정리 확인: 응답의 totalElements가 120이어야 함 (같은 코드는 한 번만)
 GET {{host}}/api/v1/products?size=1
 
 ### S5. 포트폴리오 생성: 201 기대
@@ -34,13 +34,13 @@ Content-Type: application/json
 
 { "name": "오류 테스트", "holdings": [ { "code": "NO-SUCH", "quantity": 1 } ] }
 
-### 위에서 만든 포트폴리오 조회 (id는 응답의 id 값으로 바꾸세요)
+### 위에서 만든 포트폴리오 조회 (id는 생성 응답의 id 값으로 바꾸세요. 아래 수정, 삭제 요청도 같습니다)
 GET {{host}}/api/v1/portfolios/1
 
 ### S6. 포트폴리오 목록 (이름 검색 + 정렬)
 GET {{host}}/api/v1/portfolios?query=포트폴리오&sort=returnRate,desc
 
-### 구성 변경: 매입가와 수익률이 가정 문서에 정한 대로 바뀌는지 확인
+### 구성 변경: 매입가와 수익률이 가정 문서에 정한 대로 동작하는지 확인
 PUT {{host}}/api/v1/portfolios/1
 Content-Type: application/json
 
