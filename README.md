@@ -286,6 +286,55 @@ JDK 17과 Docker가 필요합니다.
 - 원화 상품의 가격은 정수이고, 달러 상품의 가격과 환율은 소수 둘째 자리까지 있습니다.
 - 토큰 문제로 실패하면 **401**을 응답합니다. 본문의 `code`가 `TOKEN_EXPIRED`면 만료된 토큰, `UNAUTHORIZED`면 없거나 잘못된 토큰입니다.
 - 시세 서버는 가끔 **503**을 응답합니다. 응답이 오래 걸리는 경우에도 대비해 주세요.
+- 시세, 환율, 503 응답은 모두 그때그때 정해집니다. 같은 요청을 다시 보내도 값이 다를 수 있습니다. 원하는 상황을 바로 만들려면 아래 [시나리오 재현 API](#시나리오-재현-api)를 사용해 주세요.
+
+### 시나리오 재현 API
+
+시세와 환율은 30초마다 바뀌고 서버는 가끔 실패하기 때문에, 10장의 S7부터 S11까지를 원하는 때에 확인하기 어렵습니다. 아래 API로 상황을 먼저 만들어 두면 바로 확인할 수 있습니다.
+
+구현한 서버가 시나리오대로 동작하는지 확인하는 용도이므로, 제출하는 코드에서 이 API를 호출할 필요는 없습니다.
+
+| API | 하는 일 |
+|---|---|
+| `POST /sandbox/prices` | 지정한 상품의 현재가를 그 값으로 고정합니다 |
+| `POST /sandbox/fx` | 환율을 그 값으로 고정합니다 |
+| `POST /sandbox/server` | 시세 서버가 어떤 상태로 동작할지 고릅니다 |
+| `POST /sandbox/tokens/expire` | 발급된 토큰을 즉시 만료시킵니다 |
+| `GET /sandbox/requests` | 시세 서버가 받은 호출을 순서대로 보여 줍니다 |
+| `POST /sandbox/reset` | 고정한 값과 기록을 모두 처음으로 되돌립니다 |
+
+가격과 환율을 고정하면 계산 결과를 손으로 검산할 수 있습니다.
+
+```bash
+curl -X POST http://localhost:9091/sandbox/prices \
+  -H 'Content-Type: application/json' \
+  -d '{"prices":{"A001":10000,"A052":10.02}}'
+curl -X POST http://localhost:9091/sandbox/fx \
+  -H 'Content-Type: application/json' \
+  -d '{"rate":1350.25}'
+```
+
+- 고정한 상품만 멈추고 나머지는 계속 변합니다. 같은 상품을 다른 값으로 다시 보내면 시세가 바뀐 상황이 됩니다(S7, S9).
+- 없는 상품 코드를 보내면 응답의 `ignored`에 나옵니다.
+
+서버 상태는 네 가지 중 하나를 고릅니다.
+
+| `case` | 시세 서버가 하는 일 | 확인하는 시나리오 |
+|---|---|---|
+| `RANDOM` | 기본 상태입니다. 가끔 실패하고 응답 시간도 조금씩 다릅니다 | 마지막 점검 |
+| `STABLE` | 실패하지 않습니다 | S9, S10을 확인할 때의 전제 |
+| `ALWAYS_FAIL` | 항상 503을 응답합니다 | S11 |
+| `ALWAYS_SLOW` | 응답이 아주 오래 걸립니다. 그 뒤에는 정상 응답합니다 | S11의 지연 경로 |
+
+```bash
+curl -X POST http://localhost:9091/sandbox/server \
+  -H 'Content-Type: application/json' -d '{"case":"ALWAYS_FAIL"}'
+```
+
+`GET /sandbox/requests`로 시세 서버가 받은 호출을 볼 수 있습니다. `PRICES` 사이의 간격으로 갱신 주기를(S9), `tokenPrefix`가 같은지로 토큰을 다시 쓰는지를(S10) 확인해 주세요. 503으로 실패한 호출도 함께 남습니다.
+
+- `POST /sandbox/reset`을 호출하면 서버 상태가 `RANDOM`으로 돌아옵니다. 실패하지 않는 상태가 필요하면 다시 지정해 주세요.
+- 시세 서버가 아예 꺼진 경우(연결 실패)는 이 API로 만들 수 없습니다. `docker compose stop price-server`로 직접 내려서 확인해 주세요.
 
 ---
 

@@ -3,6 +3,7 @@
 ### 먼저 가상 시세 서버를 띄우고(compose.yaml), 구현한 서버를 8080 포트로 실행한 뒤 시도하세요.
 
 @host = http://localhost:8080
+@price = http://localhost:9091
 
 ### S1. 상품 검색 (부분 일치)
 GET {{host}}/api/v1/products?query=성장&size=5
@@ -87,7 +88,6 @@ GET {{host}}/api/v1/portfolios/1
 ### ------------------------------------------------------------------
 ### 아래는 가상 시세 서버(9091)를 직접 확인해 보고 싶을 때 씁니다. 필수는 아닙니다.
 
-@price = http://localhost:9091
 
 ### 시세 서버 API 문서(Swagger) 열어보기: 브라우저에서 http://localhost:9091/swagger-ui.html
 
@@ -104,3 +104,53 @@ Authorization: Bearer 여기에_토큰_붙여넣기
 ### 환율 조회
 GET {{price}}/v1/fx?pair=USD-KRW
 Authorization: Bearer 여기에_토큰_붙여넣기
+
+
+### ------------------------------------------------------------------
+### 시나리오 재현 (S7~S11). 자세한 설명은 README 7장을 참고해 주세요.
+### 시세와 환율은 30초마다 바뀌므로, 계산을 검산하려면 먼저 값을 고정합니다.
+
+### 가격 고정: A001은 원화, A052는 달러 상품입니다 (없는 코드는 ignored에 나옵니다)
+POST {{price}}/sandbox/prices
+Content-Type: application/json
+
+{ "prices": { "A001": 10000, "A052": 10.02 } }
+
+### 환율 고정: 이제 달러 상품의 평가금액을 손으로 검산할 수 있습니다
+POST {{price}}/sandbox/fx
+Content-Type: application/json
+
+{ "rate": 1350.25 }
+
+### S7, S9. 시세를 바꿔 봅니다: A001만 다른 값으로. 매입가는 그대로여야 합니다
+POST {{price}}/sandbox/prices
+Content-Type: application/json
+
+{ "prices": { "A001": 12000 } }
+
+### S9, S10의 전제. 실패하지 않는 상태로 둡니다
+POST {{price}}/sandbox/server
+Content-Type: application/json
+
+{ "case": "STABLE" }
+
+### S11. 항상 503: 이 상태에서도 내 서버의 GET은 5xx가 아니어야 합니다
+POST {{price}}/sandbox/server
+Content-Type: application/json
+
+{ "case": "ALWAYS_FAIL" }
+
+### S11. 응답이 아주 느린 경우
+POST {{price}}/sandbox/server
+Content-Type: application/json
+
+{ "case": "ALWAYS_SLOW" }
+
+### S10. 토큰 즉시 만료: 만료 뒤에도 시세 갱신이 이어져야 합니다
+POST {{price}}/sandbox/tokens/expire
+
+### S9, S10 확인: PRICES 간격으로 갱신 주기를, tokenPrefix로 토큰 재사용을 봅니다
+GET {{price}}/sandbox/requests
+
+### 초기화: 고정한 값과 기록을 되돌립니다 (서버 상태는 RANDOM으로 돌아옵니다)
+POST {{price}}/sandbox/reset
