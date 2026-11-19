@@ -49,6 +49,7 @@
 | `data/products.csv` | 상품 데이터 (수정 금지). `starter-project/data/products.csv`로 복사해서 사용해 주세요. |
 | `docs-template/assumptions.md`, `docs-template/api.md` | 문서 템플릿. `starter-project/docs/`로 복사해서 작성해 주세요. |
 | `requests.http` | 시나리오 확인용 요청 예시 (IntelliJ HTTP Client 형식) |
+| `check-scenarios.sh` | 시나리오 S1~S11을 한 번에 자동 확인하는 스크립트. 통과/실패를 바로 보여 줍니다 |
 
 ## 1. 과제 소개
 
@@ -403,6 +404,8 @@ curl -X POST http://localhost:9091/sandbox/server \
 | S10 | 토큰 만료 | 토큰이 만료되어도 시세 갱신이 계속되고, **시세를 가져올 때마다 토큰을 새로 발급받지 않음** |
 | S11 | 시세 서버 장애 | 시세 서버에 장애가 있어도 GET API가 5xx 없이 응답함 |
 
+서버와 가상 시세 서버를 띄운 뒤 `bash check-scenarios.sh`를 실행하면, 위 시나리오를 한 번에 보내 통과/실패를 색으로 보여 줍니다. 시세를 고정하고 갱신 주기(30초)가 지나기를 기다렸다가 확인하므로 전체가 1~2분쯤 걸립니다. 하나씩 눌러 보고 싶으면 `requests.http`를 쓰세요.
+
 ## 11. 제출 방법
 
 - `starter-project/` 폴더 안의 파일이 제출 저장소의 최상위에 오도록 올려 주세요. 이 장에서 말하는 루트는 이 폴더입니다.
@@ -424,6 +427,7 @@ curl -X POST http://localhost:9091/sandbox/server \
 - 시세 서버 주소는 환경변수 `PRICE_BASE_URL`로 바꿀 수 있어야 합니다. 기본값은 `http://localhost:9091`입니다.
 - `data/products.csv`는 **수정하지 않고** 그대로 읽어야 합니다.
 - DB는 H2를 사용하며, 별도 설치 없이 실행할 수 있어야 합니다.
+- 제출 전에 `bash check-scenarios.sh`를 실행해 시나리오 S1~S11이 모두 통과하는지 확인해 주세요.
 
 ## 12. 평가 안내
 
