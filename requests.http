@@ -5,19 +5,10 @@
 @host = http://localhost:8080
 @price = http://localhost:9091
 
-### S1. 상품 검색 (부분 일치)
-GET {{host}}/api/v1/products?query=성장&size=5
+### S1. 상품 목록 조회: 80개가 코드 오름차순 배열로 와야 함
+GET {{host}}/api/v1/products
 
-### S2. 상품 정렬 (상장일 오름차순)
-GET {{host}}/api/v1/products?sort=listedDate,asc&size=5
-
-### S3. 상품 필터 (유형 + 통화, AND로 결합)
-GET {{host}}/api/v1/products?type=ETF&currency=KRW&size=5
-
-### S4. 데이터 정리 확인: 응답의 totalElements가 120이어야 함 (같은 코드는 한 번만)
-GET {{host}}/api/v1/products?size=1
-
-### S5. 포트폴리오 생성: 201 기대
+### S2. 포트폴리오 생성: 201 기대
 POST {{host}}/api/v1/portfolios
 Content-Type: application/json
 
@@ -29,128 +20,82 @@ Content-Type: application/json
   ]
 }
 
-### S5. 없는 상품 코드로 생성: 400 UNKNOWN_PRODUCT 기대
+### S2. 없는 상품 코드로 생성: 400 UNKNOWN_PRODUCT 기대
 POST {{host}}/api/v1/portfolios
 Content-Type: application/json
 
 { "name": "오류 테스트", "holdings": [ { "code": "NO-SUCH", "quantity": 1 } ] }
 
-### 위에서 만든 포트폴리오 조회 (id는 생성 응답의 id 값으로 바꾸세요. 아래 수정, 삭제 요청도 같습니다)
-GET {{host}}/api/v1/portfolios/1
-
-### S6. 포트폴리오 목록 (이름 검색 + 정렬)
-GET {{host}}/api/v1/portfolios?query=포트폴리오&sort=returnRate,desc
-
-### 구성 변경: 매입가와 수익률이 가정 문서에 정한 대로 동작하는지 확인
-PUT {{host}}/api/v1/portfolios/1
-Content-Type: application/json
-
-{
-  "name": "내 포트폴리오",
-  "holdings": [
-    { "code": "A001", "quantity": 20 },
-    { "code": "A003", "quantity": 3 }
-  ]
-}
-
-### 삭제
-DELETE {{host}}/api/v1/portfolios/1
-
-### 없는 포트폴리오 조회: 404 기대
-GET {{host}}/api/v1/portfolios/999999
-
-
-### ------------------------------------------------------------------
-### S8 보강. 달러 상품으로 "금액 버림"을 직접 확인합니다.
-### 위의 A001~A003은 모두 원화 상품이라 가격도 수량도 정수입니다.
-### 그래서 어떤 계산 순서를 쓰든 결과가 같아 버림 규칙(6장)이 한 번도 작동하지 않습니다.
-### 아래 A052는 달러 상품이라 환율이 곱해지면서 소수가 생깁니다.
-###
-### 확인 방법: 아래 요청을 보낸 뒤 상세를 조회해 summary를 봅니다.
-###   - totalCost  = 버림 전 (4 × 매입가 × 환율) 을 원 단위 미만만 버린 값
-###   - totalValue = 버림 전 (4 × 현재가 × 환율) 을 원 단위 미만만 버린 값
-###   단가(매입가 × 환율)를 먼저 버리거나, 합계를 반올림하면 값이 1~2원 어긋납니다.
-### 시세와 환율은 30초마다 바뀌므로 숫자 자체는 매번 다릅니다.
-### 중요한 것은 "소수가 생기는 자리에서 내 코드가 어떻게 처리하는가"입니다.
-
+### S2. 이름이 빈 값: 400 INVALID_REQUEST 기대
 POST {{host}}/api/v1/portfolios
 Content-Type: application/json
 
-{
-  "name": "달러 버림 확인",
-  "holdings": [ { "code": "A052", "quantity": 4 } ]
-}
+{ "name": "", "holdings": [ { "code": "A001", "quantity": 1 } ] }
 
-### 위에서 받은 id로 상세 조회 (summary의 totalCost, totalValue를 직접 계산해 맞춰 보세요)
+### S2. 같은 코드를 두 번: 400 INVALID_REQUEST 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{ "name": "중복 테스트", "holdings": [ { "code": "A001", "quantity": 1 }, { "code": "A001", "quantity": 2 } ] }
+
+### S2. 위에서 만든 포트폴리오 조회 (id는 생성 응답의 id 값으로 바꾸세요. 아래 수정, 삭제 요청도 같습니다)
 GET {{host}}/api/v1/portfolios/1
 
+### S2. 없는 포트폴리오 조회: 404 PORTFOLIO_NOT_FOUND 기대
+GET {{host}}/api/v1/portfolios/99999999
 
-### ------------------------------------------------------------------
-### 아래는 가상 시세 서버(9091)를 직접 확인해 보고 싶을 때 씁니다. 필수는 아닙니다.
+### S3. 포트폴리오 목록: 배열로 와야 함
+GET {{host}}/api/v1/portfolios
 
-
-### 시세 서버 API 문서(Swagger) 열어보기: 브라우저에서 http://localhost:9091/swagger-ui.html
-
-### 토큰 발급
-POST {{price}}/auth/token
+### 포트폴리오 수정 (전체 교체): 매입가가 모두 수정 시점 시세로 다시 정해져야 함
+PUT {{host}}/api/v1/portfolios/1
 Content-Type: application/json
 
-{ "clientId": "client", "clientSecret": "client-secret" }
+{ "name": "이름 변경", "holdings": [ { "code": "A001", "quantity": 20 } ] }
 
-### 시세 조회 (위에서 받은 토큰을 넣으세요)
-GET {{price}}/v1/prices
-Authorization: Bearer 여기에_토큰_붙여넣기
+### 포트폴리오 삭제: 204 기대
+DELETE {{host}}/api/v1/portfolios/1
 
-### 환율 조회
-GET {{price}}/v1/fx?pair=USD-KRW
-Authorization: Bearer 여기에_토큰_붙여넣기
+###
+### 아래는 가상 시세 서버의 시나리오 재현 API입니다 (README 7장).
+### S4부터 S8까지를 원하는 때에 확인할 때 사용하세요.
+###
 
+### 고정한 값과 기록을 모두 처음으로 되돌립니다. 다른 재현 요청보다 먼저 보내세요.
+POST {{price}}/sandbox/reset
 
-### ------------------------------------------------------------------
-### 시나리오 재현 (S7~S11). 자세한 설명은 README 7장을 참고해 주세요.
-### 시세와 환율은 30초마다 바뀌므로, 계산을 검산하려면 먼저 값을 고정합니다.
-
-### 가격 고정: A001은 원화, A052는 달러 상품입니다 (없는 코드는 ignored에 나옵니다)
-POST {{price}}/sandbox/prices
-Content-Type: application/json
-
-{ "prices": { "A001": 10000, "A052": 10.02 } }
-
-### 환율 고정: 이제 달러 상품의 평가금액을 손으로 검산할 수 있습니다
-POST {{price}}/sandbox/fx
-Content-Type: application/json
-
-{ "rate": 1350.25 }
-
-### S7, S9. 시세를 바꿔 봅니다: A001만 다른 값으로. 매입가는 그대로여야 합니다
-POST {{price}}/sandbox/prices
-Content-Type: application/json
-
-{ "prices": { "A001": 12000 } }
-
-### S9, S10의 전제. 실패하지 않는 상태로 둡니다
+### 시세 서버가 실패하지 않는 상태로 둡니다 (S4, S5, S6, S7의 전제)
 POST {{price}}/sandbox/server
 Content-Type: application/json
 
 { "case": "STABLE" }
 
-### S11. 항상 503: 이 상태에서도 내 서버의 GET은 5xx가 아니어야 합니다
+### S4, S5. 시세 고정: A001을 10,000원으로 멈춥니다. 이 상태에서 10주를 담으면 원가 100,000원
+POST {{price}}/sandbox/prices
+Content-Type: application/json
+
+{ "prices": { "A001": 10000 } }
+
+### S4, S5, S6. 시세 변경: 11,000원으로 올립니다. 30초 안에 평가금액이 110,000원이 되어야 함
+POST {{price}}/sandbox/prices
+Content-Type: application/json
+
+{ "prices": { "A001": 11000 } }
+
+### S7. 토큰 즉시 만료: 이후에도 시세 갱신이 이어져야 함
+POST {{price}}/sandbox/tokens/expire
+
+### S6, S7. 시세 서버가 받은 호출 기록: PRICES 간격으로 주기를, tokenPrefix로 토큰 재사용을 확인
+GET {{price}}/sandbox/requests
+
+### S8. 항상 503으로 응답하는 상태: 이 상태에서도 위의 GET 요청들이 5xx 없이 응답해야 함
 POST {{price}}/sandbox/server
 Content-Type: application/json
 
 { "case": "ALWAYS_FAIL" }
 
-### S11. 응답이 아주 느린 경우
+### S8. 응답이 아주 오래 걸리는 상태
 POST {{price}}/sandbox/server
 Content-Type: application/json
 
 { "case": "ALWAYS_SLOW" }
-
-### S10. 토큰 즉시 만료: 만료 뒤에도 시세 갱신이 이어져야 합니다
-POST {{price}}/sandbox/tokens/expire
-
-### S9, S10 확인: PRICES 간격으로 갱신 주기를, tokenPrefix로 토큰 재사용을 봅니다
-GET {{price}}/sandbox/requests
-
-### 초기화: 고정한 값과 기록을 되돌립니다 (서버 상태는 RANDOM으로 돌아옵니다)
-POST {{price}}/sandbox/reset
