@@ -1,0 +1,20 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: portfolio-return-service
+  datasource:
+    url: jdbc:h2:mem:portfolio;DB_CLOSE_DELAY=-1
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+# 가상 시세 서버 주소. TODO: 환경변수 PRICE_BASE_URL 값을 쓰도록 바꿔 주세요.
+price:
+  base-url: http://localhost:9091
+
+# 상품 데이터는 data/products.csv 에 이미 들어 있습니다 (수정 금지).
+# ./gradlew bootRun 의 작업 디렉터리가 프로젝트 루트라 이 경로 그대로 열립니다.
+# TODO: 읽어서 저장하는 방식은 직접 설계해 주세요.

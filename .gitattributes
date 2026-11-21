@@ -1,0 +1,5 @@
+# 상품 데이터와 스크립트는 어떤 OS에서도 LF로 유지합니다.
+# Windows에서 core.autocrlf=true 이면 작업 폴더 파일이 CRLF가 되어
+# 평가기준표에 적힌 SHA-256과 달라지기 때문입니다.
+*.csv text eol=lf
+*.sh  text eol=lf

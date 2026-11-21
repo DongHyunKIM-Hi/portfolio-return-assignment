@@ -1,0 +1,101 @@
+### 가상 포트폴리오 수익률 서비스 요청 예시 (IntelliJ HTTP Client 형식)
+### 사용법: 각 ### 블록 왼쪽의 초록색 화살표를 눌러 실행하세요.
+### 먼저 가상 시세 서버를 띄우고(compose.yaml), 구현한 서버를 8080 포트로 실행한 뒤 시도하세요.
+
+@host = http://localhost:8080
+@price = http://localhost:9091
+
+### S1. 상품 목록 조회: 80개가 코드 오름차순 배열로 와야 함
+GET {{host}}/api/v1/products
+
+### S2. 포트폴리오 생성: 201 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{
+  "name": "내 포트폴리오",
+  "holdings": [
+    { "code": "A001", "quantity": 10 },
+    { "code": "A002", "quantity": 5 }
+  ]
+}
+
+### S2. 없는 상품 코드로 생성: 400 UNKNOWN_PRODUCT 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{ "name": "오류 테스트", "holdings": [ { "code": "NO-SUCH", "quantity": 1 } ] }
+
+### S2. 이름이 빈 값: 400 INVALID_REQUEST 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{ "name": "", "holdings": [ { "code": "A001", "quantity": 1 } ] }
+
+### S2. 같은 코드를 두 번: 400 INVALID_REQUEST 기대
+POST {{host}}/api/v1/portfolios
+Content-Type: application/json
+
+{ "name": "중복 테스트", "holdings": [ { "code": "A001", "quantity": 1 }, { "code": "A001", "quantity": 2 } ] }
+
+### S2. 위에서 만든 포트폴리오 조회 (id는 생성 응답의 id 값으로 바꾸세요. 아래 수정, 삭제 요청도 같습니다)
+GET {{host}}/api/v1/portfolios/1
+
+### S2. 없는 포트폴리오 조회: 404 PORTFOLIO_NOT_FOUND 기대
+GET {{host}}/api/v1/portfolios/99999999
+
+### S3. 포트폴리오 목록: 배열로 와야 함
+GET {{host}}/api/v1/portfolios
+
+### 포트폴리오 수정 (전체 교체): 매입가가 모두 수정 시점 시세로 다시 정해져야 함
+PUT {{host}}/api/v1/portfolios/1
+Content-Type: application/json
+
+{ "name": "이름 변경", "holdings": [ { "code": "A001", "quantity": 20 } ] }
+
+### 포트폴리오 삭제: 204 기대
+DELETE {{host}}/api/v1/portfolios/1
+
+###
+### 아래는 가상 시세 서버의 시나리오 재현 API입니다 (README 7장).
+### S4부터 S8까지를 원하는 때에 확인할 때 사용하세요.
+###
+
+### 고정한 값과 기록을 모두 처음으로 되돌립니다. 다른 재현 요청보다 먼저 보내세요.
+POST {{price}}/sandbox/reset
+
+### 시세 서버가 실패하지 않는 상태로 둡니다 (S4, S5, S6, S7의 전제)
+POST {{price}}/sandbox/server
+Content-Type: application/json
+
+{ "case": "STABLE" }
+
+### S4, S5. 시세 고정: A001을 10,000원으로 멈춥니다. 이 상태에서 10주를 담으면 원가 100,000원
+POST {{price}}/sandbox/prices
+Content-Type: application/json
+
+{ "prices": { "A001": 10000 } }
+
+### S4, S5, S6. 시세 변경: 11,000원으로 올립니다. 30초 안에 평가금액이 110,000원이 되어야 함
+POST {{price}}/sandbox/prices
+Content-Type: application/json
+
+{ "prices": { "A001": 11000 } }
+
+### S7. 토큰 즉시 만료: 이후에도 시세 갱신이 이어져야 함
+POST {{price}}/sandbox/tokens/expire
+
+### S6, S7. 시세 서버가 받은 호출 기록: PRICES 간격으로 주기를, tokenPrefix로 토큰 재사용을 확인
+GET {{price}}/sandbox/requests
+
+### S8. 항상 503으로 응답하는 상태: 이 상태에서도 위의 GET 요청들이 5xx 없이 응답해야 함
+POST {{price}}/sandbox/server
+Content-Type: application/json
+
+{ "case": "ALWAYS_FAIL" }
+
+### S8. 응답이 아주 오래 걸리는 상태
+POST {{price}}/sandbox/server
+Content-Type: application/json
+
+{ "case": "ALWAYS_SLOW" }

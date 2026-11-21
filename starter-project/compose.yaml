@@ -1,0 +1,6 @@
+# 가상 시세 서버. 이미지는 자동으로 내려받습니다 (Intel, Apple Silicon 모두 지원).
+services:
+  price-server:
+    image: ghcr.io/donghyunkim-hi/portfolio-price-server:1.2.0
+    ports:
+      - "9091:9091"
